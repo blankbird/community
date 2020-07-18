@@ -25,7 +25,7 @@ public class GithubProvider {
             String token = string.split("&")[0].split("=")[1];//把返回的access_token分开
 
             return token;
-        } catch (Exception e) {
+        } catch (IOException e) {   //不能改
             //e.printStackTrace();  //一加就报错：空指针异常
         }
         return null;
