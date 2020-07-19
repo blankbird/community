@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
 public class AuthorizeController {
 
@@ -27,7 +29,8 @@ public class AuthorizeController {
 
     @GetMapping("/callback")
     public String callback(@RequestParam(name="code") String code,
-                           @RequestParam(name="state") String state) {
+                           @RequestParam(name="state") String state,
+                           HttpServletRequest request) {    //为了实现cookie和session
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();//创建一个githubDTO对象
 
         accessTokenDTO.setClient_id(clientId);    //github需要的五个参数https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/
@@ -38,7 +41,13 @@ public class AuthorizeController {
 
         String accessToken = githubProvider.GetAccessToken(accessTokenDTO);//得到token
         GithubUser user = githubProvider.getUser(accessToken);//得到user信息
-        System.out.println(user.getName());
-        return "index";
+        if (user != null) {
+            //登录成功，写cookie 和 session
+            request.getSession().setAttribute("user", user);
+            return "redirect:/";
+        } else {
+            //登录失败
+            return "redirect:/";
+        }
     }
 }
